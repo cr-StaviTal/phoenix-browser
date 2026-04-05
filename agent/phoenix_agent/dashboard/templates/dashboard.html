@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Phoenix EDR{% endblock %}
+{% block content %}
+<h1>Phoenix EDR Dashboard</h1>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ total_events }}</div>
+        <div class="stat-label">Total Events</div>
+    </div>
+    <div class="stat-card alert">
+        <div class="stat-value">{{ total_alerts }}</div>
+        <div class="stat-label">Open Alerts</div>
+    </div>
+    <div class="stat-card critical">
+        <div class="stat-value">{{ severity_counts.get('critical', 0) }}</div>
+        <div class="stat-label">Critical</div>
+    </div>
+    <div class="stat-card high">
+        <div class="stat-value">{{ severity_counts.get('high', 0) }}</div>
+        <div class="stat-label">High Severity</div>
+    </div>
+</div>
+
+<h2>Recent Events</h2>
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>Type</th>
+            <th>Severity</th>
+            <th>Source</th>
+            <th>Location</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for event in events %}
+        {% set payload = event.payload if event.payload else {} %}
+        <tr class="severity-{{ event.severity }}">
+            <td class="alert-time">
+                <span class="time-absolute" title="{{ event.timestamp }}">{{ event.timestamp | epoch_ms_to_human }}</span>
+                <span class="time-relative">{{ event.timestamp | relative_time }}</span>
+            </td>
+            <td>{{ event.type }}</td>
+            <td><span class="badge badge-{{ event.severity }}">{{ event.severity }}</span></td>
+            <td>{{ event.source }}</td>
+            <td class="event-location">
+                {% if payload.get('url') %}
+                <span class="event-url" title="{{ payload.get('url') }}">{{ payload.get('url') | truncate(60) }}</span>
+                {% elif payload.get('domain') %}
+                <span class="event-url">{{ payload.get('domain') }}</span>
+                {% else %}
+                <span class="text-muted">—</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        {% if not events %}
+        <tr><td colspan="5" class="empty">No events recorded yet</td></tr>
+        {% endif %}
+    </tbody>
+</table>
+
+<h2>Open Alerts</h2>
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>Severity</th>
+            <th>Title</th>
+            <th>Module</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for alert in alerts %}
+        <tr class="severity-{{ alert.severity }}">
+            <td class="alert-time">
+                <span class="time-absolute" title="{{ alert.created_at }}">{{ alert.created_at | epoch_ms_to_human }}</span>
+                <span class="time-relative">{{ alert.created_at | relative_time }}</span>
+            </td>
+            <td><span class="badge badge-{{ alert.severity }}">{{ alert.severity }}</span></td>
+            <td>
+                {{ alert.title }}
+                {% if alert.description %}
+                <div class="alert-description-inline">{{ alert.description | truncate(120) }}</div>
+                {% endif %}
+            </td>
+            <td>{{ alert.source_module }}</td>
+        </tr>
+        {% endfor %}
+        {% if not alerts %}
+        <tr><td colspan="4" class="empty">No open alerts</td></tr>
+        {% endif %}
+    </tbody>
+</table>
+{% endblock %}

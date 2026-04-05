@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if rule else 'New' }} Rule - Phoenix EDR{% endblock %}
+{% block content %}
+<h1>{{ 'Edit Rule' if rule else 'New Rule' }}</h1>
+
+<form id="rule-form" class="rule-editor-form">
+    <input type="hidden" id="rule-id" value="{{ rule.id if rule else '' }}">
+
+    <fieldset class="form-section">
+        <legend>General</legend>
+        <div class="form-row">
+            <div class="form-group form-group-wide">
+                <label for="rule-name">Name</label>
+                <input type="text" id="rule-name" required value="{{ rule.name if rule else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="rule-severity">Severity</label>
+                <select id="rule-severity">
+                    <option value="info" {{ 'selected' if rule and rule.severity == 'info' else '' }}>Info</option>
+                    <option value="low" {{ 'selected' if rule and rule.severity == 'low' else '' }}>Low</option>
+                    <option value="medium" {{ 'selected' if (not rule) or (rule and rule.severity == 'medium') else '' }}>Medium</option>
+                    <option value="high" {{ 'selected' if rule and rule.severity == 'high' else '' }}>High</option>
+                    <option value="critical" {{ 'selected' if rule and rule.severity == 'critical' else '' }}>Critical</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="rule-priority">Priority</label>
+                <input type="number" id="rule-priority" value="{{ rule.priority if rule else 100 }}" min="0" max="10000">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group form-group-wide">
+                <label for="rule-description">Description</label>
+                <textarea id="rule-description" rows="2">{{ rule.description if rule else '' }}</textarea>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="rule-author">Author</label>
+                <input type="text" id="rule-author" value="{{ rule.author if rule else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="rule-tags">Tags (comma-separated)</label>
+                <input type="text" id="rule-tags" value="{{ rule.tags | join(', ') if rule else '' }}">
+            </div>
+            <div class="form-group form-group-toggle">
+                <label>
+                    <input type="checkbox" id="rule-enabled" {{ 'checked' if (not rule) or (rule and rule.enabled) else '' }}>
+                    Enabled
+                </label>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group form-group-toggle">
+                <label>
+                    <input type="checkbox" id="rule-run-once" {{ 'checked' if (not rule) or (rule and rule.run_once_per_page) else '' }}>
+                    Run once per page
+                </label>
+            </div>
+            <div class="form-group">
+                <label for="rule-cooldown">Cooldown (ms)</label>
+                <input type="number" id="rule-cooldown" value="{{ rule.cooldown_ms if rule else 0 }}" min="0">
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset class="form-section">
+        <legend>Match</legend>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="match-domains">Domains (one per line)</label>
+                <textarea id="match-domains" rows="3" placeholder="example.com&#10;*.evil.com">{% if rule and rule.match.get('domains') %}{{ rule.match['domains'] | join('\n') }}{% endif %}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="match-exclude-domains">Exclude Domains (one per line)</label>
+                <textarea id="match-exclude-domains" rows="3" placeholder="trusted.com">{% if rule and rule.match.get('exclude_domains') %}{{ rule.match['exclude_domains'] | join('\n') }}{% endif %}</textarea>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group form-group-wide">
+                <label for="match-url-patterns">URL Patterns (one per line)</label>
+                <textarea id="match-url-patterns" rows="2" placeholder="https://example.com/admin/*">{% if rule and rule.match.get('url_patterns') %}{{ rule.match['url_patterns'] | join('\n') }}{% endif %}</textarea>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="trigger-type">Trigger Type</label>
+                <select id="trigger-type" onchange="onTriggerTypeChange()">
+                    <option value="page_load">page_load</option>
+                    <option value="dom_mutation">dom_mutation</option>
+                    <option value="form_submit">form_submit</option>
+                    <option value="click">click</option>
+                    <option value="interval">interval</option>
+                    <option value="url_change">url_change</option>
+                    <option value="clipboard">clipboard</option>
+                    <option value="input_submit">input_submit</option>
+                </select>
+            </div>
+            <div class="form-group trigger-field" id="trigger-selector-group">
+                <label for="trigger-selector">Selector</label>
+                <input type="text" id="trigger-selector" placeholder="CSS selector" value="{{ rule.match['trigger'].get('selector', '') if rule else '' }}">
+            </div>
+            <div class="form-group trigger-field" id="trigger-ms-group" style="display:none">
+                <label for="trigger-ms">Interval (ms)</label>
+                <input type="number" id="trigger-ms" value="{{ rule.match['trigger'].get('ms', 5000) if rule else 5000 }}" min="100">
+            </div>
+            <div class="form-group trigger-field" id="trigger-direction-group" style="display:none">
+                <label for="trigger-direction">Direction</label>
+                <select id="trigger-direction">
+                    <option value="both">both</option>
+                    <option value="copy">copy</option>
+                    <option value="paste">paste</option>
+                </select>
+            </div>
+        </div>
+
+        <h3 class="subsection-title">DOM Conditions <button type="button" class="btn btn-small" onclick="addCondition()">+ Add</button></h3>
+        <div id="conditions-list">
+            <!-- Populated by JS -->
+        </div>
+    </fieldset>
+
+    <fieldset class="form-section">
+        <legend>Actions <button type="button" class="btn btn-small" onclick="addAction()">+ Add Action</button></legend>
+        <div id="actions-list">
+            <!-- Populated by JS -->
+        </div>
+    </fieldset>
+
+    <div class="form-buttons">
+        <button type="submit" class="btn btn-primary">Save Rule</button>
+        <a href="/dashboard/rules" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+<script>
+    var RULE_DATA = {{ rule_json | safe if rule_json else 'null' }};
+</script>
+<script src="/static/rule_editor.js"></script>
+{% endblock %}

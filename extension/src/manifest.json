@@ -1,0 +1,54 @@
+{
+  "manifest_version": 3,
+  "name": "Phoenix Shield - Browser EDR",
+  "version": "1.0.0",
+  "permissions": [
+    "webNavigation",
+    "webRequest",
+    "declarativeNetRequest",
+    "management",
+    "cookies",
+    "storage",
+    "alarms",
+    "notifications",
+    "clipboardRead",
+    "downloads"
+  ],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "content-scripts/dlp-content.js",
+        "content-scripts/form-content.js",
+        "content-scripts/governance-content.js",
+        "content-scripts/rule-content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "assets/icons/icon-16.png",
+      "48": "assets/icons/icon-48.png",
+      "128": "assets/icons/icon-128.png"
+    }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["blocked/blocked.html"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "options_page": "options/options.html",
+  "icons": {
+    "16": "assets/icons/icon-16.png",
+    "48": "assets/icons/icon-48.png",
+    "128": "assets/icons/icon-128.png"
+  }
+}

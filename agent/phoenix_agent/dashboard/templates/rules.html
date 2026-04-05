@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}Rules - Phoenix EDR{% endblock %}
+{% block content %}
+<h1>Rules <span class="alert-total-badge">{{ total }}</span></h1>
+
+<div class="rules-toolbar">
+    <div class="rules-toolbar-left">
+        <a href="/dashboard/rules/new" class="btn btn-primary">+ New Rule</a>
+        <button class="btn btn-secondary" onclick="exportRules()">Export</button>
+        <label class="btn btn-secondary import-btn">
+            Import
+            <input type="file" accept=".json" onchange="importRules(this)" hidden>
+        </label>
+    </div>
+    <div class="rules-toolbar-right">
+        <select id="filter-severity" class="filter-select" onchange="applyFilters()">
+            <option value="">All Severities</option>
+            <option value="critical">Critical</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+            <option value="info">Info</option>
+        </select>
+        <select id="filter-enabled" class="filter-select" onchange="applyFilters()">
+            <option value="">All States</option>
+            <option value="enabled">Enabled</option>
+            <option value="disabled">Disabled</option>
+        </select>
+        <input type="text" id="filter-tag" class="filter-input" placeholder="Filter by tag..." oninput="applyFilters()">
+    </div>
+</div>
+
+<div class="severity-summary">
+    <span class="summary-badge badge-info">{{ total }} Total</span>
+    <span class="summary-badge badge-low">{{ enabled_count }} Enabled</span>
+    {% for sev, count in severity_counts.items() %}
+    {% if count > 0 %}
+    <span class="summary-badge badge-{{ sev }}">{{ count }} {{ sev | capitalize }}</span>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<table class="data-table rules-table">
+    <thead>
+        <tr>
+            <th>Enabled</th>
+            <th>Name</th>
+            <th>Severity</th>
+            <th>Domains</th>
+            <th>Trigger</th>
+            <th>Actions</th>
+            <th>Priority</th>
+            <th>Updated</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="rules-body">
+        {% for rule in rules %}
+        <tr class="severity-{{ rule.severity }} rule-row"
+            data-severity="{{ rule.severity }}"
+            data-enabled="{{ 'enabled' if rule.enabled else 'disabled' }}"
+            data-tags="{{ rule.tags | join(',') | lower }}">
+            <td>
+                <label class="toggle-switch">
+                    <input type="checkbox" {{ 'checked' if rule.enabled else '' }}
+                           onchange="toggleRule('{{ rule.id }}')">
+                    <span class="toggle-slider"></span>
+                </label>
+            </td>
+            <td class="rule-name-cell">
+                <a href="/dashboard/rules/{{ rule.id }}/edit" class="rule-name-link">{{ rule.name }}</a>
+                {% if rule.tags %}
+                <div class="rule-tags">
+                    {% for tag in rule.tags %}
+                    <span class="tag-badge">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </td>
+            <td><span class="badge badge-{{ rule.severity }}">{{ rule.severity }}</span></td>
+            <td class="rule-domains">
+                {% if rule.match.get('domains') %}
+                {{ rule.match['domains'][:3] | join(', ') }}
+                {% if rule.match['domains'] | length > 3 %}
+                <span class="text-muted">+{{ rule.match['domains'] | length - 3 }} more</span>
+                {% endif %}
+                {% else %}
+                <span class="text-muted">All</span>
+                {% endif %}
+            </td>
+            <td><span class="trigger-badge">{{ rule.match['trigger']['type'] }}</span></td>
+            <td class="text-center">{{ rule.actions | length }}</td>
+            <td class="text-center">{{ rule.priority }}</td>
+            <td class="rule-updated">{{ rule.updated_at[:10] }}</td>
+            <td class="rule-actions-cell">
+                <a href="/dashboard/rules/{{ rule.id }}/edit" class="action-btn" title="Edit">Edit</a>
+                <button class="action-btn" onclick="duplicateRule('{{ rule.id }}')" title="Duplicate">Clone</button>
+                <button class="action-btn action-btn-danger" onclick="deleteRule('{{ rule.id }}', '{{ rule.name }}')" title="Delete">Del</button>
+            </td>
+        </tr>
+        {% endfor %}
+        {% if not rules %}
+        <tr><td colspan="9" class="empty">No rules configured. Click "+ New Rule" to create one.</td></tr>
+        {% endif %}
+    </tbody>
+</table>
+
+<script>
+function toggleRule(ruleId) {
+    fetch('/api/rules/' + ruleId + '/toggle', {method: 'POST'})
+        .then(function(r) { if (r.ok) location.reload(); });
+}
+
+function duplicateRule(ruleId) {
+    fetch('/api/rules/' + ruleId + '/duplicate', {method: 'POST'})
+        .then(function(r) { if (r.ok) location.reload(); });
+}
+
+function deleteRule(ruleId, name) {
+    if (!confirm('Delete rule "' + name + '"? This will soft-delete (disable) the rule.')) return;
+    fetch('/api/rules/' + ruleId, {method: 'DELETE'})
+        .then(function(r) { if (r.ok) location.reload(); });
+}
+
+function exportRules() {
+    window.location.href = '/api/rules/export';
+}
+
+function importRules(input) {
+    var file = input.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            var rules = JSON.parse(e.target.result);
+            fetch('/api/rules/import', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(rules)
+            }).then(function(r) { return r.json(); })
+              .then(function(data) {
+                alert('Imported ' + data.imported + ' rules.' + (data.errors.length ? '\nErrors: ' + data.errors.join(', ') : ''));
+                location.reload();
+            });
+        } catch (err) {
+            alert('Invalid JSON file.');
+        }
+    };
+    reader.readAsText(file);
+}
+
+function applyFilters() {
+    var severity = document.getElementById('filter-severity').value;
+    var enabled = document.getElementById('filter-enabled').value;
+    var tag = document.getElementById('filter-tag').value.toLowerCase().trim();
+    var rows = document.querySelectorAll('.rule-row');
+    rows.forEach(function(row) {
+        var show = true;
+        if (severity && row.dataset.severity !== severity) show = false;
+        if (enabled && row.dataset.enabled !== enabled) show = false;
+        if (tag && row.dataset.tags.indexOf(tag) === -1) show = false;
+        row.style.display = show ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

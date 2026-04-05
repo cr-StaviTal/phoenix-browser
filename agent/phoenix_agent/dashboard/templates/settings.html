@@ -1,0 +1,380 @@
+{% extends "base.html" %}
+{% block title %}Settings - Phoenix EDR{% endblock %}
+{% block content %}
+<h1>Module Settings</h1>
+
+<div id="settings-status" class="settings-status" hidden></div>
+
+<div class="settings-sections">
+
+    <!-- Threat Detection -->
+    <fieldset class="form-section" id="section-threat">
+        <legend>Threat Detection</legend>
+        <div class="form-row">
+            <div class="form-group form-group-toggle">
+                <label><input type="checkbox" id="td-enabled"> Enabled</label>
+            </div>
+            <div class="form-group">
+                <label for="td-action">Action</label>
+                <select id="td-action">
+                    <option value="block">Block</option>
+                    <option value="warn">Warn</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="td-blocked-domains">Blocked Domains (one per line)</label>
+                <textarea id="td-blocked-domains" rows="4"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="td-blocked-urls">Blocked URL Patterns (one per line)</label>
+                <textarea id="td-blocked-urls" rows="4"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="td-blocked-patterns">Blocked URL Glob Patterns (one per line)</label>
+                <textarea id="td-blocked-patterns" rows="4"></textarea>
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="saveSection('threat')">Save Threat Detection</button>
+    </fieldset>
+
+    <!-- DLP Engine -->
+    <fieldset class="form-section" id="section-dlp">
+        <legend>DLP Engine</legend>
+        <div class="form-row">
+            <div class="form-group form-group-toggle">
+                <label><input type="checkbox" id="dlp-enabled"> Enabled</label>
+            </div>
+        </div>
+        <h3 class="subsection-title">Sensitive Patterns</h3>
+        <div class="form-row">
+            <div class="form-group form-group-toggle"><label><input type="checkbox" id="dlp-ssn"> SSN Detection</label></div>
+            <div class="form-group form-group-toggle"><label><input type="checkbox" id="dlp-cc"> Credit Card Detection</label></div>
+            <div class="form-group form-group-toggle"><label><input type="checkbox" id="dlp-email"> Email Detection</label></div>
+        </div>
+        <h3 class="subsection-title">Custom Patterns</h3>
+        <div id="dlp-custom-patterns"></div>
+        <button type="button" class="btn btn-small" onclick="addCustomPattern()">+ Add Pattern</button>
+        <h3 class="subsection-title">File Upload</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="dlp-blocked-ext">Blocked Extensions (comma-separated)</label>
+                <input type="text" id="dlp-blocked-ext" placeholder=".exe,.bat,.ps1">
+            </div>
+            <div class="form-group">
+                <label for="dlp-max-size">Max File Size (MB)</label>
+                <input type="number" id="dlp-max-size" min="1" max="1000">
+            </div>
+            <div class="form-group">
+                <label for="dlp-upload-domains">Blocked Upload Domains (one per line)</label>
+                <textarea id="dlp-upload-domains" rows="3"></textarea>
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="saveSection('dlp')">Save DLP</button>
+    </fieldset>
+
+    <!-- Extension Monitor -->
+    <fieldset class="form-section" id="section-extmon">
+        <legend>Extension Monitor</legend>
+        <div class="form-row">
+            <div class="form-group form-group-toggle">
+                <label><input type="checkbox" id="ext-enabled"> Enabled</label>
+            </div>
+            <div class="form-group">
+                <label for="ext-risk-score">Max Risk Score Threshold</label>
+                <input type="range" id="ext-risk-score" min="0" max="100" oninput="document.getElementById('ext-risk-val').textContent=this.value">
+                <span id="ext-risk-val">70</span>
+            </div>
+            <div class="form-group form-group-toggle">
+                <label><input type="checkbox" id="ext-auto-disable"> Auto-disable risky extensions</label>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group form-group-wide">
+                <label for="ext-blocked-ids">Blocked Extension IDs (one per line)</label>
+                <textarea id="ext-blocked-ids" rows="3"></textarea>
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="saveSection('extmon')">Save Extension Monitor</button>
+    </fieldset>
+
+    <!-- Identity Protection -->
+    <fieldset class="form-section" id="section-identity">
+        <legend>Identity Protection</legend>
+        <div class="form-row">
+            <div class="form-group form-group-toggle">
+                <label><input type="checkbox" id="id-enabled"> Enabled</label>
+            </div>
+            <div class="form-group form-group-toggle">
+                <label><input type="checkbox" id="id-cookie-alert"> Alert on session cookie removal</label>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group form-group-wide">
+                <label for="id-domains">Monitored Domains (one per line)</label>
+                <textarea id="id-domains" rows="3"></textarea>
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="saveSection('identity')">Save Identity Protection</button>
+    </fieldset>
+
+    <!-- Governance -->
+    <fieldset class="form-section" id="section-governance">
+        <legend>Governance</legend>
+        <h3 class="subsection-title">Copy/Paste Restrictions</h3>
+        <div id="gov-cp-restrictions"></div>
+        <button type="button" class="btn btn-small" onclick="addCopyPasteRestriction()">+ Add Restriction</button>
+        <h3 class="subsection-title">Download Restrictions</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="gov-dl-ext">Blocked Extensions (comma-separated)</label>
+                <input type="text" id="gov-dl-ext" placeholder=".torrent">
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="saveSection('governance')">Save Governance</button>
+    </fieldset>
+
+    <!-- EDR Reporter -->
+    <fieldset class="form-section" id="section-edr">
+        <legend>EDR Reporter</legend>
+        <div class="form-row">
+            <div class="form-group form-group-wide">
+                <label for="edr-endpoint">Agent Endpoint URL</label>
+                <input type="text" id="edr-endpoint">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="edr-interval">Batch Interval (seconds)</label>
+                <input type="number" id="edr-interval" min="1">
+            </div>
+            <div class="form-group">
+                <label for="edr-batch-size">Max Batch Size</label>
+                <input type="number" id="edr-batch-size" min="1">
+            </div>
+            <div class="form-group">
+                <label for="edr-retries">Retry Attempts</label>
+                <input type="number" id="edr-retries" min="0">
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="saveSection('edr')">Save EDR Reporter</button>
+    </fieldset>
+
+    <!-- Forensic Logger -->
+    <fieldset class="form-section" id="section-forensic">
+        <legend>Forensic Logger</legend>
+        <div class="form-row">
+            <div class="form-group form-group-toggle">
+                <label><input type="checkbox" id="fl-enabled"> Enabled</label>
+            </div>
+            <div class="form-group">
+                <label for="fl-retention">Retention Days</label>
+                <input type="number" id="fl-retention" min="1">
+            </div>
+            <div class="form-group">
+                <label for="fl-storage">Max Storage (MB)</label>
+                <input type="number" id="fl-storage" min="1">
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="saveSection('forensic')">Save Forensic Logger</button>
+    </fieldset>
+</div>
+
+<script>
+var currentPolicy = null;
+
+function loadSettings() {
+    fetch('/api/policy').then(function(r) { return r.json(); }).then(function(data) {
+        currentPolicy = data;
+        populateAll(data);
+    });
+}
+
+function populateAll(p) {
+    /* Threat Detection */
+    document.getElementById('td-enabled').checked = p.threat_detection.enabled;
+    document.getElementById('td-action').value = p.threat_detection.action;
+    document.getElementById('td-blocked-domains').value = (p.threat_detection.blocked_domains || []).join('\n');
+    document.getElementById('td-blocked-urls').value = (p.threat_detection.blocked_urls || []).join('\n');
+    document.getElementById('td-blocked-patterns').value = (p.threat_detection.blocked_patterns || []).join('\n');
+
+    /* DLP */
+    document.getElementById('dlp-enabled').checked = p.dlp.enabled;
+    document.getElementById('dlp-ssn').checked = p.dlp.sensitive_patterns.ssn;
+    document.getElementById('dlp-cc').checked = p.dlp.sensitive_patterns.credit_card;
+    document.getElementById('dlp-email').checked = p.dlp.sensitive_patterns.email;
+    document.getElementById('dlp-blocked-ext').value = (p.dlp.file_upload.blocked_extensions || []).join(', ');
+    document.getElementById('dlp-max-size').value = p.dlp.file_upload.max_file_size_mb;
+    document.getElementById('dlp-upload-domains').value = (p.dlp.file_upload.blocked_domains || []).join('\n');
+    document.getElementById('dlp-custom-patterns').innerHTML = '';
+    (p.dlp.sensitive_patterns.custom_patterns || []).forEach(function(cp) { addCustomPattern(cp); });
+
+    /* Extension Monitor */
+    document.getElementById('ext-enabled').checked = p.extension_monitor.enabled;
+    document.getElementById('ext-risk-score').value = p.extension_monitor.max_permissions_risk_score;
+    document.getElementById('ext-risk-val').textContent = p.extension_monitor.max_permissions_risk_score;
+    document.getElementById('ext-auto-disable').checked = p.extension_monitor.auto_disable_risky;
+    document.getElementById('ext-blocked-ids').value = (p.extension_monitor.blocked_extensions || []).join('\n');
+
+    /* Identity */
+    document.getElementById('id-enabled').checked = p.identity_protection.enabled;
+    document.getElementById('id-cookie-alert').checked = p.identity_protection.alert_on_session_cookie_removal;
+    document.getElementById('id-domains').value = (p.identity_protection.monitored_domains || []).join('\n');
+
+    /* Governance */
+    document.getElementById('gov-cp-restrictions').innerHTML = '';
+    (p.governance.copy_paste_restrictions || []).forEach(function(r) { addCopyPasteRestriction(r); });
+    document.getElementById('gov-dl-ext').value = (p.governance.download_restrictions.blocked_extensions || []).join(', ');
+
+    /* EDR Reporter */
+    document.getElementById('edr-endpoint').value = p.edr_reporter.endpoint;
+    document.getElementById('edr-interval').value = p.edr_reporter.batch_interval_seconds;
+    document.getElementById('edr-batch-size').value = p.edr_reporter.max_batch_size;
+    document.getElementById('edr-retries').value = p.edr_reporter.retry_attempts;
+
+    /* Forensic Logger */
+    document.getElementById('fl-enabled').checked = p.forensic_logger.enabled;
+    document.getElementById('fl-retention').value = p.forensic_logger.retention_days;
+    document.getElementById('fl-storage').value = p.forensic_logger.max_storage_mb;
+}
+
+function textareaToList(id) {
+    var val = document.getElementById(id).value.trim();
+    return val ? val.split('\n').map(function(l) { return l.trim(); }).filter(Boolean) : [];
+}
+
+function csvToList(id) {
+    var val = document.getElementById(id).value.trim();
+    return val ? val.split(',').map(function(l) { return l.trim(); }).filter(Boolean) : [];
+}
+
+function collectPolicy() {
+    var p = JSON.parse(JSON.stringify(currentPolicy));
+    p.threat_detection.enabled = document.getElementById('td-enabled').checked;
+    p.threat_detection.action = document.getElementById('td-action').value;
+    p.threat_detection.blocked_domains = textareaToList('td-blocked-domains');
+    p.threat_detection.blocked_urls = textareaToList('td-blocked-urls');
+    p.threat_detection.blocked_patterns = textareaToList('td-blocked-patterns');
+
+    p.dlp.enabled = document.getElementById('dlp-enabled').checked;
+    p.dlp.sensitive_patterns.ssn = document.getElementById('dlp-ssn').checked;
+    p.dlp.sensitive_patterns.credit_card = document.getElementById('dlp-cc').checked;
+    p.dlp.sensitive_patterns.email = document.getElementById('dlp-email').checked;
+    p.dlp.file_upload.blocked_extensions = csvToList('dlp-blocked-ext');
+    p.dlp.file_upload.max_file_size_mb = parseInt(document.getElementById('dlp-max-size').value, 10);
+    p.dlp.file_upload.blocked_domains = textareaToList('dlp-upload-domains');
+    p.dlp.sensitive_patterns.custom_patterns = collectCustomPatterns();
+
+    p.extension_monitor.enabled = document.getElementById('ext-enabled').checked;
+    p.extension_monitor.max_permissions_risk_score = parseInt(document.getElementById('ext-risk-score').value, 10);
+    p.extension_monitor.auto_disable_risky = document.getElementById('ext-auto-disable').checked;
+    p.extension_monitor.blocked_extensions = textareaToList('ext-blocked-ids');
+
+    p.identity_protection.enabled = document.getElementById('id-enabled').checked;
+    p.identity_protection.alert_on_session_cookie_removal = document.getElementById('id-cookie-alert').checked;
+    p.identity_protection.monitored_domains = textareaToList('id-domains');
+
+    p.governance.copy_paste_restrictions = collectCopyPasteRestrictions();
+    p.governance.download_restrictions.blocked_extensions = csvToList('gov-dl-ext');
+
+    p.edr_reporter.endpoint = document.getElementById('edr-endpoint').value.trim();
+    p.edr_reporter.batch_interval_seconds = parseInt(document.getElementById('edr-interval').value, 10);
+    p.edr_reporter.max_batch_size = parseInt(document.getElementById('edr-batch-size').value, 10);
+    p.edr_reporter.retry_attempts = parseInt(document.getElementById('edr-retries').value, 10);
+
+    p.forensic_logger.enabled = document.getElementById('fl-enabled').checked;
+    p.forensic_logger.retention_days = parseInt(document.getElementById('fl-retention').value, 10);
+    p.forensic_logger.max_storage_mb = parseInt(document.getElementById('fl-storage').value, 10);
+
+    return p;
+}
+
+function saveSection(section) {
+    var policy = collectPolicy();
+    fetch('/api/policy', {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(policy)
+    }).then(function(r) {
+        if (!r.ok) throw new Error('Save failed');
+        return r.json();
+    }).then(function(data) {
+        showStatus('Settings saved successfully.', 'success');
+        currentPolicy = policy;
+    }).catch(function(err) {
+        showStatus('Error: ' + err.message, 'error');
+    });
+}
+
+function showStatus(msg, type) {
+    var el = document.getElementById('settings-status');
+    el.textContent = msg;
+    el.className = 'settings-status settings-status-' + type;
+    el.hidden = false;
+    setTimeout(function() { el.hidden = true; }, 3000);
+}
+
+/* Custom Patterns */
+var cpIdx = 0;
+function addCustomPattern(data) {
+    var idx = cpIdx++;
+    var container = document.getElementById('dlp-custom-patterns');
+    var div = document.createElement('div');
+    div.className = 'dynamic-item';
+    div.id = 'cp-' + idx;
+    div.innerHTML =
+        '<div class="form-row">' +
+        '<div class="form-group"><label>Name</label><input type="text" class="cp-name" value="' + (data ? data.name : '') + '"></div>' +
+        '<div class="form-group"><label>Pattern (regex)</label><input type="text" class="cp-pattern" value="' + (data ? data.pattern : '') + '"></div>' +
+        '<div class="form-group"><label>Action</label><select class="cp-action"><option value="warn"' + (data && data.action === 'warn' ? ' selected' : '') + '>warn</option><option value="block"' + (data && data.action === 'block' ? ' selected' : '') + '>block</option></select></div>' +
+        '<div class="form-group"><button type="button" class="btn btn-small btn-danger" onclick="document.getElementById(\'cp-' + idx + '\').remove()">Remove</button></div>' +
+        '</div>';
+    container.appendChild(div);
+}
+
+function collectCustomPatterns() {
+    var items = document.querySelectorAll('#dlp-custom-patterns .dynamic-item');
+    var result = [];
+    items.forEach(function(item) {
+        var name = item.querySelector('.cp-name').value.trim();
+        var pattern = item.querySelector('.cp-pattern').value.trim();
+        var action = item.querySelector('.cp-action').value;
+        if (name && pattern) result.push({name: name, pattern: pattern, action: action});
+    });
+    return result;
+}
+
+/* Copy/Paste Restrictions */
+var cprIdx = 0;
+function addCopyPasteRestriction(data) {
+    var idx = cprIdx++;
+    var container = document.getElementById('gov-cp-restrictions');
+    var div = document.createElement('div');
+    div.className = 'dynamic-item';
+    div.id = 'cpr-' + idx;
+    div.innerHTML =
+        '<div class="form-row">' +
+        '<div class="form-group"><label>Source Domain</label><input type="text" class="cpr-source" value="' + (data ? data.source_domain : '') + '"></div>' +
+        '<div class="form-group"><label>Target Domain</label><input type="text" class="cpr-target" value="' + (data ? data.target_domain : '*') + '"></div>' +
+        '<div class="form-group"><label>Action</label><select class="cpr-action"><option value="block"' + (data && data.action === 'block' ? ' selected' : '') + '>block</option><option value="warn"' + (data && data.action === 'warn' ? ' selected' : '') + '>warn</option></select></div>' +
+        '<div class="form-group"><button type="button" class="btn btn-small btn-danger" onclick="document.getElementById(\'cpr-' + idx + '\').remove()">Remove</button></div>' +
+        '</div>';
+    container.appendChild(div);
+}
+
+function collectCopyPasteRestrictions() {
+    var items = document.querySelectorAll('#gov-cp-restrictions .dynamic-item');
+    var result = [];
+    items.forEach(function(item) {
+        var source = item.querySelector('.cpr-source').value.trim();
+        var target = item.querySelector('.cpr-target').value.trim() || '*';
+        var action = item.querySelector('.cpr-action').value;
+        if (source) result.push({source_domain: source, target_domain: target, action: action, message: ''});
+    });
+    return result;
+}
+
+loadSettings();
+</script>
+{% endblock %}

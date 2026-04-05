@@ -1,0 +1,220 @@
+[
+  {
+    "id": "seed-rule-001",
+    "name": "Block Known Phishing Domains",
+    "description": "Blocks navigation to known phishing domains and displays a warning overlay.",
+    "severity": "critical",
+    "enabled": true,
+    "author": "phoenix-edr",
+    "tags": ["threat-detection", "phishing", "built-in"],
+    "match": {
+      "domains": ["secure-login-verify.com", "account-update-required.net", "paypal-secure-login.com", "bankofamerica-verify.com", "microsoft-account-alert.com"],
+      "trigger": {"type": "page_load"}
+    },
+    "actions": [
+      {"type": "block_navigation", "params": {"message": "This site has been identified as a phishing domain by Phoenix EDR."}},
+      {"type": "log_event", "params": {"message": "Blocked navigation to phishing domain"}},
+      {"type": "notify", "params": {"title": "Phishing Blocked", "message": "A known phishing site was blocked."}}
+    ],
+    "priority": 1000,
+    "run_once_per_page": true,
+    "cooldown_ms": 0
+  },
+  {
+    "id": "seed-rule-002",
+    "name": "Block Malware Distribution Domains",
+    "description": "Blocks access to domains known for distributing malware.",
+    "severity": "critical",
+    "enabled": true,
+    "author": "phoenix-edr",
+    "tags": ["threat-detection", "malware", "built-in"],
+    "match": {
+      "domains": ["malware-download.xyz", "free-crack-software.com", "drive-by-exploit.net"],
+      "trigger": {"type": "page_load"}
+    },
+    "actions": [
+      {"type": "block_navigation", "params": {"message": "This site is known to distribute malware."}},
+      {"type": "log_event", "params": {"message": "Blocked navigation to malware domain"}}
+    ],
+    "priority": 1000,
+    "run_once_per_page": true,
+    "cooldown_ms": 0
+  },
+  {
+    "id": "seed-rule-003",
+    "name": "Detect SSN in Form Fields",
+    "description": "Detects Social Security Number patterns entered into form fields and warns the user.",
+    "severity": "high",
+    "enabled": true,
+    "author": "phoenix-edr",
+    "tags": ["dlp", "pii", "ssn", "built-in"],
+    "match": {
+      "trigger": {"type": "form_submit"},
+      "dom_conditions": [
+        {"type": "page_text_matches", "pattern": "\\b\\d{3}-\\d{2}-\\d{4}\\b"}
+      ]
+    },
+    "actions": [
+      {"type": "block_form_submit", "params": {"selector": "form", "message": "This form appears to contain a Social Security Number. Submission blocked for review."}},
+      {"type": "log_event", "params": {"message": "SSN pattern detected in form submission"}},
+      {"type": "alert", "params": {"title": "SSN Detected", "message": "A Social Security Number pattern was detected in a form."}}
+    ],
+    "priority": 900,
+    "run_once_per_page": false,
+    "cooldown_ms": 0
+  },
+  {
+    "id": "seed-rule-004",
+    "name": "Detect Credit Card Numbers in Forms",
+    "description": "Detects credit card number patterns entered into form fields.",
+    "severity": "high",
+    "enabled": true,
+    "author": "phoenix-edr",
+    "tags": ["dlp", "pii", "credit-card", "built-in"],
+    "match": {
+      "trigger": {"type": "form_submit"},
+      "dom_conditions": [
+        {"type": "page_text_matches", "pattern": "\\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13}|6(?:011|5[0-9]{2})[0-9]{12})\\b"}
+      ]
+    },
+    "actions": [
+      {"type": "block_form_submit", "params": {"selector": "form", "message": "This form appears to contain a credit card number. Submission blocked for review."}},
+      {"type": "log_event", "params": {"message": "Credit card pattern detected in form submission"}}
+    ],
+    "priority": 900,
+    "run_once_per_page": false,
+    "cooldown_ms": 0
+  },
+  {
+    "id": "seed-rule-005",
+    "name": "Detect Email Addresses in Forms",
+    "description": "Detects email addresses being submitted in forms on non-whitelisted domains.",
+    "severity": "medium",
+    "enabled": true,
+    "author": "phoenix-edr",
+    "tags": ["dlp", "pii", "email", "built-in"],
+    "match": {
+      "trigger": {"type": "form_submit"},
+      "dom_conditions": [
+        {"type": "page_text_matches", "pattern": "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b"}
+      ]
+    },
+    "actions": [
+      {"type": "log_event", "params": {"message": "Email address detected in form submission"}},
+      {"type": "inject_banner", "params": {"message": "An email address was detected in this form submission.", "position": "top", "severity": "medium"}}
+    ],
+    "priority": 500,
+    "run_once_per_page": false,
+    "cooldown_ms": 5000
+  },
+  {
+    "id": "seed-rule-006",
+    "name": "Block Dangerous File Uploads",
+    "description": "Blocks uploading of executable and script files.",
+    "severity": "high",
+    "enabled": true,
+    "author": "phoenix-edr",
+    "tags": ["dlp", "file-upload", "built-in"],
+    "match": {
+      "trigger": {"type": "form_submit", "selector": "input[type=file]"},
+      "dom_conditions": [
+        {"type": "element_attr_matches", "selector": "input[type=file]", "attribute": "value", "pattern": "\\.(exe|bat|ps1|cmd|scr|msi|vbs|js|wsf|wsh)$"}
+      ]
+    },
+    "actions": [
+      {"type": "block_form_submit", "params": {"selector": "form", "message": "Uploading executable files is not permitted."}},
+      {"type": "log_event", "params": {"message": "Dangerous file upload blocked"}}
+    ],
+    "priority": 800,
+    "run_once_per_page": false,
+    "cooldown_ms": 0
+  },
+  {
+    "id": "seed-rule-007",
+    "name": "Block AI Chat Platforms",
+    "description": "Blocks access to AI chat platforms to prevent data exfiltration. Disabled by default.",
+    "severity": "medium",
+    "enabled": false,
+    "author": "phoenix-edr",
+    "tags": ["governance", "ai-block", "optional"],
+    "match": {
+      "domains": ["chat.openai.com", "chatgpt.com", "gemini.google.com", "claude.ai", "bard.google.com", "copilot.microsoft.com"],
+      "trigger": {"type": "page_load"}
+    },
+    "actions": [
+      {"type": "block_navigation", "params": {"message": "Access to AI chat platforms is restricted by company policy."}},
+      {"type": "log_event", "params": {"message": "AI chat platform access blocked"}}
+    ],
+    "priority": 700,
+    "run_once_per_page": true,
+    "cooldown_ms": 0
+  },
+  {
+    "id": "seed-rule-008",
+    "name": "Block Company Secrets in Forms",
+    "description": "Template rule to detect company-specific confidential patterns. Disabled by default - customize patterns before enabling.",
+    "severity": "critical",
+    "enabled": false,
+    "author": "phoenix-edr",
+    "tags": ["dlp", "confidential", "template"],
+    "match": {
+      "trigger": {"type": "form_submit"},
+      "dom_conditions": [
+        {"type": "page_text_matches", "pattern": "\\b(CONFIDENTIAL|TOP SECRET|INTERNAL ONLY)\\b"}
+      ]
+    },
+    "actions": [
+      {"type": "block_form_submit", "params": {"selector": "form", "message": "This form contains confidential information. Submission blocked."}},
+      {"type": "log_event", "params": {"message": "Confidential content detected in form"}},
+      {"type": "alert", "params": {"title": "Confidential Data Leak Attempt", "message": "A form submission containing confidential markers was blocked."}}
+    ],
+    "priority": 950,
+    "run_once_per_page": false,
+    "cooldown_ms": 0
+  },
+  {
+    "id": "seed-rule-009",
+    "name": "Log External Script Loading",
+    "description": "Logs all external script elements loaded on the page for security auditing. Disabled by default.",
+    "severity": "info",
+    "enabled": false,
+    "author": "phoenix-edr",
+    "tags": ["audit", "scripts", "optional"],
+    "match": {
+      "trigger": {"type": "page_load"},
+      "dom_conditions": [
+        {"type": "element_exists", "selector": "script[src]"}
+      ]
+    },
+    "actions": [
+      {"type": "extract_data", "params": {"selector": "script[src]", "attributes": ["src"], "extract_text": false}},
+      {"type": "log_event", "params": {"message": "External scripts detected on page"}}
+    ],
+    "priority": 100,
+    "run_once_per_page": true,
+    "cooldown_ms": 0
+  },
+  {
+    "id": "seed-rule-010",
+    "name": "Detect DOM XSS Patterns",
+    "description": "Detects common DOM-based XSS patterns in page content.",
+    "severity": "critical",
+    "enabled": true,
+    "author": "phoenix-edr",
+    "tags": ["threat-detection", "xss", "built-in"],
+    "match": {
+      "trigger": {"type": "dom_mutation"},
+      "dom_conditions": [
+        {"type": "page_text_matches", "pattern": "<script[^>]*>.*?(document\\.cookie|eval\\(|javascript:|onerror=|onload=)"}
+      ]
+    },
+    "actions": [
+      {"type": "log_event", "params": {"message": "Potential DOM XSS pattern detected"}},
+      {"type": "alert", "params": {"title": "DOM XSS Detected", "message": "A potential DOM-based cross-site scripting pattern was detected."}},
+      {"type": "inject_banner", "params": {"message": "Warning: Suspicious script activity detected on this page.", "position": "top", "severity": "critical"}}
+    ],
+    "priority": 950,
+    "run_once_per_page": true,
+    "cooldown_ms": 10000
+  }
+]

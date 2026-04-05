@@ -1,0 +1,25 @@
+{
+  "name": "phoenix-shield",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "webpack --mode production",
+    "dev": "webpack --mode development --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.270",
+    "copy-webpack-plugin": "^12.0.0",
+    "eslint": "^9.0.0",
+    "ts-loader": "^9.5.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.4.0",
+    "vitest": "^2.0.0",
+    "webpack": "^5.90.0",
+    "webpack-cli": "^5.1.0"
+  },
+  "dependencies": {}
+}

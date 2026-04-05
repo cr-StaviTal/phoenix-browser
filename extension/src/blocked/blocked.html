@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Access Blocked - Phoenix Shield</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0f1117;
+      color: #e2e8f0;
+      font-family: system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: #1a1d27;
+      border: 1px solid #2d3148;
+      border-radius: 16px;
+      padding: 48px 56px;
+      max-width: 560px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+    }
+
+    .shield {
+      width: 80px;
+      height: 88px;
+      margin: 0 auto 28px;
+      position: relative;
+    }
+
+    .shield-svg {
+      width: 80px;
+      height: 88px;
+      fill: #ef4444;
+      filter: drop-shadow(0 0 16px rgba(239, 68, 68, 0.5));
+    }
+
+    .shield-x {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -48%);
+      font-size: 32px;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #f8fafc;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .info-box {
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+
+    .info-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #64748b;
+      margin-bottom: 4px;
+    }
+
+    .info-value {
+      font-size: 13px;
+      color: #cbd5e1;
+      word-break: break-all;
+      font-family: ui-monospace, monospace;
+    }
+
+    .rule-badge {
+      display: inline-block;
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 6px;
+      padding: 2px 10px;
+      font-size: 13px;
+      font-family: ui-monospace, monospace;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    button {
+      flex: 1;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    button:active { transform: scale(0.98); }
+    button:hover { opacity: 0.88; }
+
+    .btn-back {
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid #334155;
+    }
+
+    .btn-request {
+      background: #3b82f6;
+      color: #fff;
+    }
+
+    .toast {
+      display: none;
+      margin-top: 16px;
+      padding: 10px 16px;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      border-radius: 8px;
+      color: #86efac;
+      font-size: 13px;
+    }
+
+    .branding {
+      margin-top: 32px;
+      font-size: 12px;
+      color: #334155;
+      letter-spacing: 0.04em;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="shield">
+      <svg class="shield-svg" viewBox="0 0 24 26" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 0L0 4v9c0 7 5.4 12.5 12 13 6.6-.5 12-6 12-13V4L12 0z"/>
+      </svg>
+      <div class="shield-x">&#x2715;</div>
+    </div>
+
+    <h1>Access Blocked by Phoenix Shield</h1>
+    <p class="subtitle">
+      The website you attempted to visit has been blocked by your
+      organization's security policy.
+    </p>
+
+    <div class="info-box">
+      <div class="info-label">Blocked URL</div>
+      <div class="info-value" id="blocked-url">&mdash;</div>
+    </div>
+
+    <div class="info-box">
+      <div class="info-label">Matched Rule</div>
+      <div class="info-value"><span class="rule-badge" id="matched-rule">&mdash;</span></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-back" id="btn-back">Go Back to Safety</button>
+      <button class="btn-request" id="btn-request">Request Access</button>
+    </div>
+
+    <div class="toast" id="toast">Request submitted. Your administrator has been notified.</div>
+
+    <div class="branding">PHOENIX SHIELD &mdash; Browser EDR</div>
+  </div>
+
+  <script src="blocked.js"></script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Alerts - Phoenix EDR{% endblock %}
+{% block content %}
+<h1>Alerts <span class="alert-total-badge">{{ total }}</span></h1>
+
+{% if severity_counts %}
+<div class="severity-summary">
+  {% if severity_counts.get('critical', 0) %}
+  <span class="summary-badge badge-critical">{{ severity_counts.get('critical', 0) }} Critical</span>
+  {% endif %}
+  {% if severity_counts.get('high', 0) %}
+  <span class="summary-badge badge-high">{{ severity_counts.get('high', 0) }} High</span>
+  {% endif %}
+  {% if severity_counts.get('medium', 0) %}
+  <span class="summary-badge badge-medium">{{ severity_counts.get('medium', 0) }} Medium</span>
+  {% endif %}
+  {% if severity_counts.get('low', 0) %}
+  <span class="summary-badge badge-low">{{ severity_counts.get('low', 0) }} Low</span>
+  {% endif %}
+</div>
+{% endif %}
+
+<table class="data-table alerts-table">
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>Severity</th>
+            <th>Status</th>
+            <th>Title</th>
+            <th>Details</th>
+            <th>Module</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for alert in alerts %}
+        {% set payload = alert.metadata.get('event_payload', {}) if alert.metadata else {} %}
+        <tr class="severity-{{ alert.severity }} alert-row">
+            <td class="alert-time">
+                <span class="time-absolute" title="{{ alert.created_at }}">{{ alert.created_at | epoch_ms_to_human }}</span>
+                <span class="time-relative">{{ alert.created_at | relative_time }}</span>
+            </td>
+            <td><span class="badge badge-{{ alert.severity }}">{{ alert.severity }}</span></td>
+            <td><span class="badge badge-status-{{ alert.status }}">{{ alert.status }}</span></td>
+            <td class="alert-title">{{ alert.title }}</td>
+            <td class="alert-details-cell">
+                {% if alert.description %}
+                <div class="alert-description">{{ alert.description }}</div>
+                {% endif %}
+                {% if payload %}
+                <button class="expand-btn" onclick="togglePayload(this)" aria-expanded="false">
+                    Show payload
+                </button>
+                <div class="payload-block" hidden>
+                    <table class="payload-table">
+                        {% for key, val in payload.items() %}
+                        <tr>
+                            <td class="payload-key">{{ key }}</td>
+                            <td class="payload-val">{{ val }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                {% endif %}
+            </td>
+            <td class="alert-module">{{ alert.source_module }}</td>
+        </tr>
+        {% endfor %}
+        {% if not alerts %}
+        <tr><td colspan="6" class="empty">No alerts</td></tr>
+        {% endif %}
+    </tbody>
+</table>
+
+<script>
+function togglePayload(btn) {
+    var block = btn.nextElementSibling;
+    var expanded = btn.getAttribute('aria-expanded') === 'true';
+    if (expanded) {
+        block.hidden = true;
+        btn.setAttribute('aria-expanded', 'false');
+        btn.textContent = 'Show payload';
+    } else {
+        block.hidden = false;
+        btn.setAttribute('aria-expanded', 'true');
+        btn.textContent = 'Hide payload';
+    }
+}
+</script>
+{% endblock %}

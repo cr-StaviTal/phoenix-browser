@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Phoenix EDR{% endblock %}</title>
+    <link rel="stylesheet" href="/static/dashboard.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">Phoenix EDR Agent</div>
+        <div class="nav-links">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/dashboard/alerts">Alerts</a>
+            <a href="/dashboard/rules">Rules</a>
+            <a href="/dashboard/settings">Settings</a>
+        </div>
+    </nav>
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

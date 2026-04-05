@@ -1,0 +1,59 @@
+{
+  "version": "1.0.0",
+  "updated_at": "",
+  "threat_detection": {
+    "enabled": true,
+    "blocked_urls": [],
+    "blocked_domains": ["evil-phishing.example.com", "malware-download.example.net", "fake-login.example.org"],
+    "blocked_patterns": ["*phishing*", "*malware*"],
+    "action": "block"
+  },
+  "dlp": {
+    "enabled": true,
+    "file_upload": {
+      "blocked_extensions": [".exe", ".bat", ".ps1", ".cmd", ".scr"],
+      "max_file_size_mb": 25,
+      "blocked_domains": ["pastebin.com"]
+    },
+    "clipboard": {
+      "monitor_paste": true,
+      "monitor_copy": true
+    },
+    "sensitive_patterns": {
+      "ssn": true,
+      "credit_card": true,
+      "email": true,
+      "custom_patterns": []
+    }
+  },
+  "extension_monitor": {
+    "enabled": true,
+    "blocked_extensions": [],
+    "max_permissions_risk_score": 70,
+    "auto_disable_risky": false
+  },
+  "identity_protection": {
+    "enabled": true,
+    "monitored_domains": [],
+    "alert_on_session_cookie_removal": true
+  },
+  "forensic_logger": {
+    "enabled": true,
+    "retention_days": 7,
+    "max_storage_mb": 80
+  },
+  "governance": {
+    "copy_paste_restrictions": [],
+    "download_restrictions": {
+      "blocked_extensions": [".torrent"],
+      "require_scan": false
+    }
+  },
+  "edr_reporter": {
+    "endpoint": "http://localhost:8745/api",
+    "batch_interval_seconds": 30,
+    "max_batch_size": 500,
+    "retry_attempts": 3,
+    "retry_backoff_ms": 1000
+  }
+}

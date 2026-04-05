@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <div class="header">
+      <h1>Phoenix Shield</h1>
+      <span class="status-badge" id="status-badge">Active</span>
+    </div>
+    <div class="stats">
+      <div class="stat">
+        <span class="stat-value" id="event-count">-</span>
+        <span class="stat-label">Events (24h)</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="alert-count">-</span>
+        <span class="stat-label">Alerts</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="module-count">-</span>
+        <span class="stat-label">Modules</span>
+      </div>
+    </div>
+    <div class="modules" id="module-list"></div>
+    <div class="footer">
+      <a href="#" id="options-link">Settings</a>
+      <span class="version">v1.0.0</span>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
