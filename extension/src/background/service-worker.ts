@@ -13,6 +13,7 @@ import { IdentityProtection } from '../modules/identity-protection';
 import { EdrReporter } from '../modules/edr-reporter';
 import { GovernanceEngine } from '../modules/governance-engine';
 import { RuleEngine } from '../modules/rule-engine';
+import { ClipboardBridge } from '../modules/clipboard-bridge';
 
 import { MessageRouter } from './message-router';
 import {
@@ -48,6 +49,7 @@ async function init(): Promise<void> {
   const identityProtection = new IdentityProtection();
   const governanceEngine = new GovernanceEngine();
   const ruleEngine = new RuleEngine();
+  const clipboardBridge = new ClipboardBridge();
   const edrReporter = new EdrReporter();
 
   // 3. Wire up inter-module dependencies
@@ -67,6 +69,7 @@ async function init(): Promise<void> {
   registry.register(identityProtection);   // Cookie/session monitoring
   registry.register(governanceEngine);     // Browser governance (copy/paste, downloads)
   registry.register(ruleEngine);           // Dynamic rule engine
+  registry.register(clipboardBridge);      // Clipboard → native messaging bridge
   registry.register(edrReporter);          // Last - reports everything to EDR agent
 
   // 5. Initialize all modules

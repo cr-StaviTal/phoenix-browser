@@ -10,6 +10,7 @@ module.exports = {
     'content-scripts/form-content': './src/content-scripts/form-content.ts',
     'content-scripts/governance-content': './src/content-scripts/governance-content.ts',
     'content-scripts/rule-content': './src/content-scripts/rule-content.ts',
+    'content-scripts/clipboard-bridge-content': './src/content-scripts/clipboard-bridge-content.ts',
     'blocked/blocked': './src/blocked/blocked.ts',
   },
   output: {
@@ -33,6 +34,8 @@ module.exports = {
     new CopyWebpackPlugin({
       patterns: [
         { from: 'src/manifest.json', to: 'manifest.json' },
+        { from: 'src/rules.json', to: 'rules.json' },
+        { from: 'src/injected', to: 'injected' },
         { from: 'src/popup', to: 'popup', globOptions: { ignore: ['**/*.ts'] } },
         { from: 'src/options', to: 'options', globOptions: { ignore: ['**/*.ts'] } },
         { from: 'src/assets', to: 'assets', noErrorOnMissing: true },

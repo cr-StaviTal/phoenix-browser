@@ -44,6 +44,9 @@ export const EventTypes = {
   // Rule Engine
   RULE_MATCHED: 'rule.matched',
   RULE_ACTION_EXECUTED: 'rule.action_executed',
+
+  // Clipboard Bridge
+  CLIPBOARD_BRIDGE_COPY: 'clipboard_bridge.copy',
 } as const;
 
 export type EventType = typeof EventTypes[keyof typeof EventTypes];
@@ -110,4 +113,11 @@ export interface RuleMatchedPayload {
   trigger: string;
   actionsExecuted: string[];
   severity: string;
+}
+
+export interface ClipboardBridgePayload {
+  text: string;
+  is_visible: boolean;
+  url: string;
+  forwarded_to_native: boolean;
 }

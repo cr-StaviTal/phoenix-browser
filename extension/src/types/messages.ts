@@ -10,7 +10,8 @@ export type ContentMessageType =
   | 'dlp:paste-detected'
   | 'dlp:sensitive-data-found'
   | 'form:submission-detected'
-  | 'form:password-field-detected';
+  | 'form:password-field-detected'
+  | 'clipboard-bridge:copy-detected';
 
 // Response from service worker to content script
 export interface ContentResponse {

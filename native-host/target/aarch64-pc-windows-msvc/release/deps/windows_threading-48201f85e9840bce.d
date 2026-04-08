@@ -1,0 +1,10 @@
+/Users/ofir.tal/Development/phoenix-browser/native-host/target/aarch64-pc-windows-msvc/release/deps/windows_threading-48201f85e9840bce.d: /Users/ofir.tal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/windows-threading-0.1.0/src/lib.rs /Users/ofir.tal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/windows-threading-0.1.0/src/bindings.rs /Users/ofir.tal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/windows-threading-0.1.0/src/pool.rs /Users/ofir.tal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/windows-threading-0.1.0/src/../readme.md
+
+/Users/ofir.tal/Development/phoenix-browser/native-host/target/aarch64-pc-windows-msvc/release/deps/libwindows_threading-48201f85e9840bce.rlib: /Users/ofir.tal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/windows-threading-0.1.0/src/lib.rs /Users/ofir.tal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/windows-threading-0.1.0/src/bindings.rs /Users/ofir.tal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/windows-threading-0.1.0/src/pool.rs /Users/ofir.tal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/windows-threading-0.1.0/src/../readme.md
+
+/Users/ofir.tal/Development/phoenix-browser/native-host/target/aarch64-pc-windows-msvc/release/deps/libwindows_threading-48201f85e9840bce.rmeta: /Users/ofir.tal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/windows-threading-0.1.0/src/lib.rs /Users/ofir.tal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/windows-threading-0.1.0/src/bindings.rs /Users/ofir.tal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/windows-threading-0.1.0/src/pool.rs /Users/ofir.tal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/windows-threading-0.1.0/src/../readme.md
+
+/Users/ofir.tal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/windows-threading-0.1.0/src/lib.rs:
+/Users/ofir.tal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/windows-threading-0.1.0/src/bindings.rs:
+/Users/ofir.tal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/windows-threading-0.1.0/src/pool.rs:
+/Users/ofir.tal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/windows-threading-0.1.0/src/../readme.md:

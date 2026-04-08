@@ -1,0 +1,31 @@
+[package]
+name = "phoenix-native-host"
+version = "1.0.0"
+edition = "2021"
+description = "Chrome Native Messaging Host for Phoenix Shield clipboard bridge"
+
+[[bin]]
+name = "phoenix-native-host"
+path = "src/main.rs"
+
+[[bin]]
+name = "phoenix-etw-monitor"
+path = "src/etw_monitor.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", features = ["serde"] }
+ctrlc = { version = "3", features = ["termination"] }
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.61", features = [
+    "Win32_Foundation",
+    "Win32_System_Threading",
+    "Win32_System_ProcessStatus",
+    "Win32_System_Diagnostics_ToolHelp",
+    "Win32_System_Diagnostics_Debug",
+] }
+ferrisetw = "1.2"
+ntapi = "0.4"
+winapi = { version = "0.3", features = ["ntdef", "winnt", "ntstatus", "processthreadsapi", "memoryapi", "handleapi"] }

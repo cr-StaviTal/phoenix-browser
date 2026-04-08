@@ -12,9 +12,19 @@
     "alarms",
     "notifications",
     "clipboardRead",
-    "downloads"
+    "downloads",
+    "nativeMessaging"
   ],
   "host_permissions": ["<all_urls>"],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "csp_stripper",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  },
   "background": {
     "service_worker": "background/service-worker.js",
     "type": "module"
@@ -26,7 +36,8 @@
         "content-scripts/dlp-content.js",
         "content-scripts/form-content.js",
         "content-scripts/governance-content.js",
-        "content-scripts/rule-content.js"
+        "content-scripts/rule-content.js",
+        "content-scripts/clipboard-bridge-content.js"
       ],
       "run_at": "document_idle"
     }
@@ -41,7 +52,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["blocked/blocked.html"],
+      "resources": ["blocked/blocked.html", "injected/clipboard-interceptor.js"],
       "matches": ["<all_urls>"]
     }
   ],

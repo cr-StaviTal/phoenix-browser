@@ -1,0 +1,1 @@
+/Users/ofir.tal/Development/phoenix-browser/native-host/target/aarch64-pc-windows-msvc/release/phoenix-native-host.exe: /Users/ofir.tal/Development/phoenix-browser/native-host/src/main.rs /Users/ofir.tal/Development/phoenix-browser/native-host/src/process_monitor.rs
